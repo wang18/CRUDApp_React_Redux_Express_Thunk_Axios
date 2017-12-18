@@ -1,0 +1,6 @@
+create route /games
+gamepage component connect store for games
+
+prop-types
+
+gamelist
