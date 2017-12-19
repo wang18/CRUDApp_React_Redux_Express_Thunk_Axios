@@ -2,13 +2,16 @@ import React, {Component} from 'react';
 import classnames from 'classnames';
 import {connect} from 'react-redux';
 import {saveGame} from '../actions/index';
+import {Redirect} from 'react-router-dom';
 
 class GameFormPage extends Component {
     state={
         title:'',
         cover:'',
         errors:{},
-        loading: false
+        loading: false,
+        done: false
+
     }
 
     handleChange = (e) =>{
@@ -41,14 +44,14 @@ class GameFormPage extends Component {
             this.setState({loading: true});
             this.props.saveGame({title, cover})
                 .then(
-                    ()=>{},
+                    ()=>{this.setState({done: true})},
                     (err) => {this.setState({errors: err.response.data.errors, loading: false});}
                 );
         }
     }
 
     render(){
-        return (<form className={classnames('ui', 'form',{loading: this.state.loading})} onSubmit={this.handleSubmit}>
+        const form =(<form className={classnames('ui', 'form',{loading: this.state.loading})} onSubmit={this.handleSubmit}>
             <h1>Add new game</h1>
 
             {!!this.state.errors.global && <div className="ui negative message">
@@ -82,6 +85,9 @@ class GameFormPage extends Component {
                 <button className="ui primary button">Save</button>
             </div>
         </form>);
+        return (<div className="ui container">
+            {this.state.done ? <Redirect to="/games"/> : form}
+        </div>);
     }
 }
 

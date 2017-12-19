@@ -2,6 +2,7 @@ import axios from 'axios';
 
 export const SET_GAMES = 'SET_GAMES';
 export const SAVE_GAME = 'SAVE_GAME';
+export const ADD_GAME = 'ADD_GAME';
 
 function handleResponse(response) {
     if(response.ok){
@@ -27,9 +28,15 @@ export function fetchGames() {
     }
 }
 
+export function addGame(game) {
+    return {
+        type: ADD_GAME,
+        game
+    }
+}
 export function saveGame(data) {
     return dispatch =>{
-        return axios.post('/api/games', data);
+        return axios.post('/api/games', data).then(data => dispatch(addGame(data)));
             //.catch(error => console.log(error.response);
     }
 }
