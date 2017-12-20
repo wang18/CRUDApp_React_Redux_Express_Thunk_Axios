@@ -3,6 +3,7 @@ import axios from 'axios';
 export const SET_GAMES = 'SET_GAMES';
 export const SAVE_GAME = 'SAVE_GAME';
 export const ADD_GAME = 'ADD_GAME';
+export const GAME_FETCHED = 'GAME_FETCHED';
 
 function handleResponse(response) {
     if(response.ok){
@@ -41,3 +42,18 @@ export function saveGame(data) {
     }
 }
 
+export function gameFetched(game){
+    return {
+      type: GAME_FETCHED,
+        game
+    };
+}
+export function fetchGame(id){
+    return dispatch => {
+        axios.get(`/api/games/${id}`)
+            .then(data =>{
+                dispatch(gameFetched(data));
+            });
+
+    };
+}
