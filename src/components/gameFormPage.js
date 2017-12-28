@@ -1,110 +1,50 @@
-import React, {Component} from 'react';
-import classnames from 'classnames';
+import React from 'react';
 import {connect} from 'react-redux';
-import {saveGame, fetchGame} from '../actions/index';
+import {saveGame, fetchGame, updateGame} from '../actions/index';
 import {Redirect} from 'react-router-dom';
+import GameForm from './gameForm';
 
-class GameFormPage extends Component {
+class GameFormPage extends React.Component{
     state={
-        title:this.props.game ? this.props.game.title : '',
-        cover:this.props.game ? this.props.game.cover : '',
-        _id:this.props.game ? this.props.game._id : null,
+        redirect:false,
         errors:{},
-        loading: false,
-        done: false
-    }
-
-    componentWillReceiveProps =(nextProps)=>{
-            this.setState({
-            _id:nextProps.game._id,
-            title: nextProps.game.title,
-            cover: nextProps.game.cover
-        });
 
     }
 
     componentDidMount = () =>{
         if(this.props.match.params._id){
-            console.log(123);
             this.props.fetchGame(this.props.match.params._id);
         }
     }
-
-    handleChange = (e) =>{
-        if (!!this.state.errors[e.target.name]){
-            let errors = Object.assign({},this.state.errors);
-            delete errors[e.target.name];
-            this.setState({
-                [e.target.name]: e.target.value,
-                errors
-            });
+    saveGame=({_id,title,cover})=>{
+        if (_id) {
+            this.props.updateGame({ _id, title, cover });
+            this.setState({redirect: true});
+            /* .then(
+             ()=>{this.setState({done: true})},
+             (err) => {this.setState({errors: err.response.data.errors, loading: false});}
+             );*/
+            return;
         }else{
-            this.setState({
-                [e.target.name]: e.target.value
-            });
-        }
-    }
-
-    handleSubmit = (e) => {
-        e.preventDefault();
-
-        //validation
-        let errors={};
-        if (this.state.title === "") errors.title='Title cant be empty...';
-        if (this.state.cover === "") errors.cover='Cover cant be empty...';
-
-        this.setState({errors});
-        const isValid = Object.keys(errors).length === 0;
-        if (isValid){
-            const {title, cover} = this.state;
-            this.setState({loading: true});
-            this.props.saveGame({title, cover})
+            return this.props.saveGame({title, cover})
                 .then(
-                    ()=>{this.setState({done: true})},
+                    ()=>{this.setState({redirect: true})},
                     (err) => {this.setState({errors: err.response.data.errors, loading: false});}
                 );
         }
     }
 
     render(){
-        const form =(<form className={classnames('ui', 'form',{loading: this.state.loading})} onSubmit={this.handleSubmit}>
-            <h1>Add new game</h1>
-
-            {!!this.state.errors.global && <div className="ui negative message">
-                <p>{this.state.errors.global}</p>
-            </div>}
-
-            <div className={classnames('field', {error: !!this.state.errors.title})}>
-                <label htmlFor="title">Title</label>
-                <input name="title"
-                       value={this.state.title}
-                       onChange={this.handleChange}
-                       id="title"/>
-                <span>{this.state.errors.title}</span>
-            </div>
-
-            <div className={classnames('field', {error: !!this.state.errors.cover})}>
-                <label htmlFor="cover">Cover URL</label>
-                <input name="cover"
-                       value={this.state.cover}
-                       onChange={this.handleChange}
-                       id="cover"/>
-                <span>{this.state.errors.cover}</span>
-            </div>
-
-            <div>
-                {this.state.cover !== '' && <img src={this.state.cover} alt="cover" className="ui small bordered image"/>}
-
-            </div>
-
-            <div className="field">
-                <button className="ui primary button">Save</button>
-            </div>
-        </form>);
-        return (<div className="ui container">
-            {this.state.done ? <Redirect to="/games"/> : form}
+        return(<div>
+            {this.state.redirect ?
+                <Redirect to="/games"/> :
+                <GameForm
+                    game={this.props.game}
+                    saveGame={this.saveGame}
+                />
+            }
         </div>);
-    }
+    };
 }
 
 function mapStateToProps(state, props) {
@@ -116,4 +56,4 @@ function mapStateToProps(state, props) {
 
     return { game: null };
 }
-export default connect(mapStateToProps, {saveGame, fetchGame})(GameFormPage);
+export default connect(mapStateToProps, {saveGame, fetchGame, updateGame})(GameFormPage);

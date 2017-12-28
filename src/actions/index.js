@@ -4,8 +4,10 @@ export const SET_GAMES = 'SET_GAMES';
 export const SAVE_GAME = 'SAVE_GAME';
 export const ADD_GAME = 'ADD_GAME';
 export const GAME_FETCHED = 'GAME_FETCHED';
+export const GAME_UPDATED = 'GAME_UPDATED';
+export const GAME_DELETED = 'GAME_DELETED';
 
-function handleResponse(response) {
+/*function handleResponse(response) {
     if(response.ok){
         return response.json();
     }else{
@@ -13,7 +15,7 @@ function handleResponse(response) {
         error.response = response;
         throw error;
     }
-}
+}*/
 
 export function setGames(games) {
     return {
@@ -57,3 +59,42 @@ export function fetchGame(id){
 
     };
 }
+
+export function gameUpdated(game) {
+    return {
+        type:GAME_UPDATED,
+        game
+    };
+}
+
+export function updateGame(data){
+    return dispatch =>{
+        return axios.put(`/api/games/${data._id}`, data)
+            .then(data => {
+                dispatch(gameUpdated(data));
+            });
+    };
+}
+
+export function gameDeleted(gameId) {
+    return{
+        type: GAME_DELETED,
+        gameId
+    };
+}
+
+export function deleteGame(gameId){
+    console.log('act: ', gameId);
+    //return dispatch =>{
+    console.log('111: ', gameId);
+    axios.delete(`/api/games/${gameId}`).then(data => {
+        console.log('ax: ',data);
+        gameDeleted(gameId);
+    });
+
+    /*return{
+        type: GAME_DELETED1,
+        gameId
+    };*/
+}
+
